@@ -102,39 +102,102 @@ const selectedDifficulty = ref('ทั้งหมด');
 // --- Computed ---
 const filteredExercises = computed(() => {
     return exercises.value.filter(ex => {
-        const matchesMuscle = selectedMuscle.value === 'all' || ex.muscle === selectedMuscle.value;
-        const matchesDifficulty = selectedDifficulty.value === 'ทั้งหมด' || ex.difficulty === selectedDifficulty.value;
-        const matchesSearch = !searchQuery.value || 
-            ex.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            ex.description.toLowerCase().includes(searchQuery.value.toLowerCase());
-        return matchesMuscle && matchesDifficulty && matchesSearch;
+        const muscleMatch = selectedMuscle.value === 'all' || ex.muscle === selectedMuscle.value;
+        const diffMatch = selectedDifficulty.value === 'ทั้งหมด' || ex.difficulty === selectedDifficulty.value;
+        
+        const searchLower = searchQuery.value.toLowerCase().trim();
+        const textMatch = searchLower === '' || 
+                          ex.name.toLowerCase().includes(searchLower) || 
+                          ex.description.toLowerCase().includes(searchLower);
+
+        return muscleMatch && diffMatch && textMatch;
     });
 });
 
 // --- Methods ---
-const calculateBMI = () => {
-    const weight = parseFloat(bmiWeight.value);
-    const height = parseFloat(bmiHeight.value) / 100; // Convert cm to m
+const handleSave = () => {
+    if (!newExercise.value.nameTh) return;
+
+    const mockNewEntry = {
+        id: Date.now(),
+        name: `${newExercise.value.nameTh} (${newExercise.value.nameEn})`,
+        muscle: newExercise.value.category.toLowerCase().includes('หน้าอก') ? 'chest' : 
+                newExercise.value.category.toLowerCase().includes('หลัง') ? 'back' :
+                newExercise.value.category.toLowerCase().includes('แขน') ? 'arms' :
+                newExercise.value.category.toLowerCase().includes('ท้อง') ? 'abs' : 'legs',
+        difficulty: newExercise.value.difficulty.includes('เริ่มต้น') ? 'เริ่มต้น' : 'ปานกลาง',
+        description: 'ท่าออกกำลังกายใหม่ที่เพิ่มจากระบบจัดการข้อมูลของ FitFlex',
+        instructions: [
+            'เริ่มต้นในท่าเตรียมพร้อมที่ถูกต้อง',
+            'เคลื่อนไหวอย่างช้าๆ และโฟกัสไปที่กล้ามเนื้อเป้าหมาย',
+            'หายใจเข้าเมื่อลดลง และหายใจออกเมื่อออกแรงดัน'
+        ],
+        equipment: newExercise.value.equipment,
+        imageUrl: newExercise.value.imageUrl,
+        color: 'bg-indigo-600'
+    };
     
-    if (weight > 0 && height > 0) {
-        const bmi = weight / (height * height);
+    exercises.value.push(mockNewEntry);
+    toast.value = { show: true, message: 'บันทึกข้อมูลสำเร็จ! กำลังกลับหน้าหลัก...', type: 'success' };
+    
+    setTimeout(() => {
+        toast.value.show = false;
+        currentPage.value = 'guide';
+        resetForm();
+    }, 1500);
+};
+
+const resetForm = () => {
+    newExercise.value = { 
+        nameTh: '', 
+        nameEn: '', 
+        difficulty: 'Beginner (เริ่มต้น)', 
+        category: 'หน้าอก (Chest)', 
+        muscles: [], 
+        equipment: 'Bodyweight',
+        imageUrl: ''
+    };
+};
+
+const handleReset = () => {
+    resetForm();
+    toast.value = { show: true, message: 'ล้างข้อมูลในฟอร์มเรียบร้อยแล้ว', type: 'reset' };
+    
+    setTimeout(() => {
+        toast.value.show = false;
+    }, 1500);
+};
+
+// BMI Logic
+const calculateBMI = () => {
+    if (!bmiWeight.value || !bmiHeight.value) {
+        toast.value = { show: true, message: 'กรุณากรอกน้ำหนักและส่วนสูงให้ครบถ้วน', type: 'error' };
+        setTimeout(() => toast.value.show = false, 2000);
+        return;
+    }
+    
+    const w = parseFloat(bmiWeight.value);
+    const h = parseFloat(bmiHeight.value) / 100;
+    
+    if (h > 0 && w > 0) {
+        const bmi = w / (h * h);
         bmiResult.value = bmi.toFixed(1);
-        
+
         if (bmi < 18.5) {
-            bmiCategory.value = 'น้ำหนักน้อย (Underweight)';
-            bmiColor.value = 'text-blue-600';
-        } else if (bmi < 23) {
-            bmiCategory.value = 'น้ำหนักปกติ (Normal)';
-            bmiColor.value = 'text-green-600';
-        } else if (bmi < 25) {
-            bmiCategory.value = 'น้ำหนักเกิน (Overweight)';
-            bmiColor.value = 'text-yellow-600';
-        } else if (bmi < 30) {
-            bmiCategory.value = 'อ้วนระดับ 1 (Obese Class 1)';
-            bmiColor.value = 'text-orange-600';
+            bmiCategory.value = 'น้ำหนักน้อย / ผอม';
+            bmiColor.value = 'text-blue-500';
+        } else if (bmi >= 18.5 && bmi <= 22.9) {
+            bmiCategory.value = 'ปกติ (สุขภาพดี)';
+            bmiColor.value = 'text-emerald-500';
+        } else if (bmi >= 23 && bmi <= 24.9) {
+            bmiCategory.value = 'ท้วม / โรคอ้วนระดับ 1';
+            bmiColor.value = 'text-amber-500';
+        } else if (bmi >= 25 && bmi <= 29.9) {
+            bmiCategory.value = 'อ้วน / โรคอ้วนระดับ 2';
+            bmiColor.value = 'text-orange-500';
         } else {
-            bmiCategory.value = 'อ้วนระดับ 2 (Obese Class 2)';
-            bmiColor.value = 'text-red-600';
+            bmiCategory.value = 'อ้วนมาก / โรคอ้วนระดับ 3';
+            bmiColor.value = 'text-rose-500';
         }
     }
 };
@@ -155,22 +218,6 @@ const showFeatureNotReady = (customMessage) => {
     setTimeout(() => {
         toast.value.show = false;
     }, 1500);
-};
-
-const handleSave = () => {
-    showFeatureNotReady('ระบบบันทึกข้อมูลกำลังพัฒนา');
-};
-
-const handleReset = () => {
-    newExercise.value = {
-        nameTh: '',
-        nameEn: '',
-        difficulty: 'Beginner (เริ่มต้น)',
-        category: 'หน้าอก (Chest)',
-        muscles: [],
-        equipment: 'Bodyweight',
-        imageUrl: ''
-    };
 };
 </script>
 
@@ -394,7 +441,7 @@ const handleReset = () => {
             <div v-if="currentPage === 'admin'" class="p-8 max-w-4xl mx-auto">
                 <div class="mb-10">
                     <h1 class="text-3xl font-black text-slate-800">ค้นหาท่าออกกำลังกาย</h1>
-                    <p class="text-slate-500 mt-2 font-medium">ค้นหาท่าออกกำลังกายที่คุณต้องการจากฐานข้อมูลทั้งหมดอย่างรวดเร็ว</p>
+                    <p class="text-slate-500 mt-2 font-medium">ค้นหาท่าฝึกที่คุณต้องการจากฐานข้อมูลทั้งหมดอย่างรวดเร็ว</p>
                 </div>
 
                 <div class="space-y-8 pb-20">
@@ -480,7 +527,7 @@ const handleReset = () => {
             <div v-if="currentPage === 'create'" class="p-8 max-w-4xl mx-auto">
                 <div class="mb-10">
                     <h1 class="text-3xl font-black text-slate-800">ระบบจัดการท่าออกกำลังกาย</h1>
-                    <p class="text-slate-500 mt-2 font-medium">เพิ่มและแก้ไขฐานข้อมูลท่าออกกำลังกายทั้งหมดในระบบ</p>
+                    <p class="text-slate-500 mt-2 font-medium">เพิ่มและแก้ไขฐานข้อมูลท่าฝึกทั้งหมดในระบบ</p>
                 </div>
 
                 <div class="space-y-8 pb-20">
