@@ -1,39 +1,18 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import html2canvas from 'html2canvas'; 
 import { 
-    Dumbbell, 
-    Layout, 
-    Search, 
-    Calculator, 
-    Info, 
-    PlusCircle, 
-    User, 
-    LogOut, 
-    CheckCircle2, 
-    RotateCcw, 
-    X, 
-    Lightbulb, 
-    ChevronRight, 
-    SearchX, 
-    Target, 
-    Star, 
-    BookOpen, 
-    Image as ImageIcon, 
-    Smartphone, 
-    AlertTriangle, 
-    Activity, 
-    Save,
-    Layers,
-    Accessibility,
-    Armchair,
-    Wind
+    Dumbbell, Layout, Search, Calculator, Info, PlusCircle, User, 
+    LogOut, CheckCircle2, RotateCcw, X, Lightbulb, ChevronRight, 
+    SearchX, Target, Star, BookOpen, Image as ImageIcon, Smartphone, 
+    AlertTriangle, Activity, Save, Layers, Accessibility, Armchair, Wind,
+    Heart, Loader2, Zap, Calendar, Trash2, Download
 } from 'lucide-vue-next';
 
-// --- State Management ---
+// --- 1. State Management ---
 const currentPage = ref('guide');
 const toast = ref({ show: false, message: '', type: 'success' });
 const viewingExercise = ref(null);
-<<<<<<< HEAD
 const showHelpBanner = ref(true); 
 const isLoading = ref(true);
 const showDaySelector = ref(false); 
@@ -69,19 +48,24 @@ const calcHeight = ref('');
 const calcAge = ref('');
 const calcGender = ref('male');
 const calcActivity = ref('1.2');
-=======
-const showHelpBanner = ref(true);
-const searchQuery = ref('');
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
 
-// BMI State
-const bmiWeight = ref('');
-const bmiHeight = ref('');
 const bmiResult = ref(null);
 const bmiCategory = ref('');
 const bmiColor = ref('');
+const bmrResult = ref(null);
+const tdeeResult = ref(null);
 
-// --- Data ---
+// --- 4. Admin Create Form State (รวมมาจากโค้ดใหม่) ---
+const newExercise = ref({
+    nameTh: '',
+    nameEn: '',
+    difficulty: 'Beginner (เริ่มต้น)',
+    category: 'หน้าอก (Chest)',
+    muscles: [],
+    equipment: 'Bodyweight',
+    imageUrl: ''
+});
+
 const muscleGroups = [
     { id: 'all', name: 'ทั้งหมด', icon: Layout },
     { id: 'chest', name: 'หน้าอก', icon: Layers },
@@ -93,7 +77,6 @@ const muscleGroups = [
     { id: 'fullbody', name: 'ทั่วร่าง', icon: Activity },
 ];
 
-<<<<<<< HEAD
 const exercises = ref([]);
 
 const fetchExercises = async () => {
@@ -142,42 +125,9 @@ const fetchExercises = async () => {
         showToast('ไม่สามารถดึงข้อมูลจากฐานข้อมูลได้ โปรดตรวจสอบ Backend', 'error');
     } finally {
         setTimeout(() => isLoading.value = false, 500);
-=======
-const exercises = ref([
-    {
-        id: 1,
-        name: 'Push-Ups (วิดพื้น)',
-        muscle: 'chest',
-        difficulty: 'เริ่มต้น',
-        description: 'ท่าพื้นฐานที่ช่วยสร้างกล้ามเนื้อหน้าอก หัวไหล่ และหลังแขน โดยใช้เพียงน้ำหนักตัว',
-        instructions: [
-            'วางมือบนพื้นให้กว้างกว่าช่วงไหล่เล็กน้อย',
-            'เกร็งหน้าท้องและรักษาลำตัวให้ตรงเป็นเส้นขนาน',
-            'ลดตัวลงจนหน้าอกเกือบแตะพื้นแล้วดันตัวกลับขึ้นมาอย่างรวดเร็ว'
-        ],
-        equipment: 'Bodyweight',
-        imageUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?auto=format&fit=crop&q=80&w=800',
-        color: 'bg-blue-500'
-    },
-    {
-        id: 2,
-        name: 'Dumbbell Press',
-        muscle: 'chest',
-        difficulty: 'ปานกลาง',
-        description: 'การบริหารหน้าอกโดยใช้ดัมเบลล์ ช่วยให้กล้ามเนื้อทำงานได้อย่างอิสระและลึกกว่าท่าบาร์เบลล์',
-        instructions: [
-            'นอนบนม้านั่งราบ ถือดัมเบลล์ไว้เหนือหน้าอกให้แขนตึง',
-            'ค่อยๆ ลดดัมเบลล์ลงจนศอกทำมุม 90 องศา สัมผัสถึงการยืดของกล้ามเนื้ออก',
-            'ดันดัมเบลล์กลับขึ้นไปด้านบนอย่างช้าๆ โดยพยายามเกร็งหน้าอก'
-        ],
-        equipment: 'Dumbbell',
-        imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=800',
-        color: 'bg-indigo-500'
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
     }
-]);
+};
 
-<<<<<<< HEAD
 onMounted(() => {
     const savedFavs = localStorage.getItem('musclefit_favs');
     if (savedFavs) favorites.value = JSON.parse(savedFavs);
@@ -204,25 +154,11 @@ onMounted(() => {
             localStorage.setItem('musclefit_favs', JSON.stringify(favorites.value));
         }
     });
-=======
-const newExercise = ref({
-    nameTh: '',
-    nameEn: '',
-    difficulty: 'Beginner (เริ่มต้น)',
-    category: 'หน้าอก (Chest)',
-    muscles: [],
-    equipment: 'Bodyweight',
-    imageUrl: ''
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
 });
 
-const selectedMuscle = ref('all');
-const selectedDifficulty = ref('ทั้งหมด');
-
-// --- Computed ---
+// --- Computed Properties ---
 const filteredExercises = computed(() => {
     return exercises.value.filter(ex => {
-<<<<<<< HEAD
         const muscleMatch = selectedMuscle.value === 'all' || ex.muscle === selectedMuscle.value;
         const diffMatch = selectedDifficulty.value === 'ทั้งหมด' || ex.difficulty === selectedDifficulty.value;
         const equipMatch = selectedEquipment.value === 'ทั้งหมด' || ex.equipment.includes(selectedEquipment.value);
@@ -250,10 +186,19 @@ const getExerciseById = (id) => {
     return exercises.value.find(ex => ex.id === id);
 };
 
-// --- 5. Methods & Logic ---
+// --- Methods & Logic ---
 const showToast = (message, type = 'success') => {
     toast.value = { show: true, message, type };
     setTimeout(() => toast.value.show = false, 2000);
+};
+
+const showFeatureNotReady = (customMessage) => {
+    toast.value = { 
+        show: true, 
+        message: typeof customMessage === 'string' ? customMessage : 'กำลังพัฒนาระบบส่วนนี้ครับ...', 
+        type: 'reset' 
+    };
+    setTimeout(() => { toast.value.show = false; }, 1500);
 };
 
 const toggleFavorite = (id, event) => {
@@ -343,61 +288,24 @@ const calculateHealth = () => {
     
     if (h > 0 && w > 0 && a > 0) {
         const bmi = w / (hMeter * hMeter);
-=======
-        const matchesMuscle = selectedMuscle.value === 'all' || ex.muscle === selectedMuscle.value;
-        const matchesDifficulty = selectedDifficulty.value === 'ทั้งหมด' || ex.difficulty === selectedDifficulty.value;
-        const matchesSearch = !searchQuery.value || 
-            ex.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-            ex.description.toLowerCase().includes(searchQuery.value.toLowerCase());
-        return matchesMuscle && matchesDifficulty && matchesSearch;
-    });
-});
-
-// --- Methods ---
-const calculateBMI = () => {
-    const weight = parseFloat(bmiWeight.value);
-    const height = parseFloat(bmiHeight.value) / 100; // Convert cm to m
-    
-    if (weight > 0 && height > 0) {
-        const bmi = weight / (height * height);
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
         bmiResult.value = bmi.toFixed(1);
-        
-        if (bmi < 18.5) {
-            bmiCategory.value = 'น้ำหนักน้อย (Underweight)';
-            bmiColor.value = 'text-blue-600';
-        } else if (bmi < 23) {
-            bmiCategory.value = 'น้ำหนักปกติ (Normal)';
-            bmiColor.value = 'text-green-600';
-        } else if (bmi < 25) {
-            bmiCategory.value = 'น้ำหนักเกิน (Overweight)';
-            bmiColor.value = 'text-yellow-600';
-        } else if (bmi < 30) {
-            bmiCategory.value = 'อ้วนระดับ 1 (Obese Class 1)';
-            bmiColor.value = 'text-orange-600';
-        } else {
-            bmiCategory.value = 'อ้วนระดับ 2 (Obese Class 2)';
-            bmiColor.value = 'text-red-600';
-        }
+        if (bmi < 18.5) { bmiCategory.value = 'น้ำหนักน้อย / ผอม'; bmiColor.value = 'text-blue-500 border-blue-200 bg-blue-50'; } 
+        else if (bmi <= 22.9) { bmiCategory.value = 'ปกติ (สุขภาพดี)'; bmiColor.value = 'text-emerald-600 border-emerald-200 bg-emerald-50'; } 
+        else if (bmi <= 24.9) { bmiCategory.value = 'ท้วม / โรคอ้วนระดับ 1'; bmiColor.value = 'text-amber-500 border-amber-200 bg-amber-50'; } 
+        else if (bmi <= 29.9) { bmiCategory.value = 'อ้วน / โรคอ้วนระดับ 2'; bmiColor.value = 'text-orange-500 border-orange-200 bg-orange-50'; } 
+        else { bmiCategory.value = 'อ้วนมาก / โรคอ้วนระดับ 3'; bmiColor.value = 'text-rose-600 border-rose-200 bg-rose-50'; }
+
+        let bmr = calcGender.value === 'male' ? (10 * w) + (6.25 * h) - (5 * a) + 5 : (10 * w) + (6.25 * h) - (5 * a) - 161;
+        bmrResult.value = Math.round(bmr);
+        tdeeResult.value = Math.round(bmr * parseFloat(calcActivity.value));
     }
 };
 
-const resetBMI = () => {
-    bmiWeight.value = '';
-    bmiHeight.value = '';
-    bmiResult.value = null;
-    bmiCategory.value = '';
-};
-
-const showFeatureNotReady = (customMessage) => {
-    toast.value = { 
-        show: true, 
-        message: typeof customMessage === 'string' ? customMessage : 'กำลังพัฒนาระบบส่วนนี้ครับ...', 
-        type: 'reset' 
-    };
-    setTimeout(() => {
-        toast.value.show = false;
-    }, 1500);
+const resetCalculator = () => {
+    calcWeight.value = ''; calcHeight.value = ''; calcAge.value = '';
+    calcGender.value = 'male'; calcActivity.value = '1.2';
+    bmiResult.value = null; bmrResult.value = null; tdeeResult.value = null;
+    showToast('รีเซ็ตข้อมูลแล้ว', 'reset');
 };
 
 const handleSave = () => {
@@ -418,76 +326,62 @@ const handleReset = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans">
+    <div class="flex flex-col md:flex-row h-screen w-full bg-slate-50 font-sans text-slate-800 overflow-hidden">
         
-        <!-- Sidebar Navigation -->
-        <aside class="w-full md:w-64 bg-[#0F172A] text-white flex flex-col shrink-0 md:sticky md:top-0 md:h-screen">
+        <aside class="w-full md:w-64 bg-[#0F172A] text-white flex flex-col shrink-0 z-40 shadow-xl border-r border-slate-800">
             <div class="p-6 flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg">
+                <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/30">
                     <Dumbbell class="w-6 h-6 text-white" />
                 </div>
-                <span class="text-xl font-bold tracking-tight">FITNET</span>
+                <span class="text-2xl font-black tracking-tight">MuscleFit</span>
             </div>
             
-            <nav class="flex-1 px-4 space-y-2">
-                <button 
-                    @click="currentPage = 'guide'"
-                    :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium outline-none', currentPage === 'guide' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800']"
-                >
-                    <Layout class="w-5 h-5" /> รายการท่าฝึก
+            <nav class="flex-1 px-4 py-2 space-y-2 overflow-y-auto no-scrollbar md:mt-4 flex flex-row md:flex-col gap-2 md:gap-0">
+                <button @click="currentPage = 'guide'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'guide' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <Layout class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">รายการท่าฝึก</span>
                 </button>
-                <button 
-                    @click="currentPage = 'admin'"
-                    :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium outline-none', currentPage === 'admin' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800']"
-                >
-                    <Search class="w-5 h-5" /> ค้นหาท่าฝึก
+                <button @click="currentPage = 'plan'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'plan' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <Calendar class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">ตารางของฉัน</span>
                 </button>
-                <button 
-                    @click="currentPage = 'bmi'"
-                    :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium outline-none', currentPage === 'bmi' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800']"
-                >
-                    <Calculator class="w-5 h-5" /> คำนวณ BMI
+                <button @click="currentPage = 'admin'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'admin' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <Search class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">ค้นหาท่าฝึก</span>
                 </button>
-                <button 
-                    @click="currentPage = 'create'"
-                    :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium outline-none', currentPage === 'create' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800']"
-                >
-                    <PlusCircle class="w-5 h-5" /> เพิ่มท่าฝึกใหม่
+                <button @click="currentPage = 'bmi'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'bmi' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <Calculator class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">คำนวณสุขภาพ</span>
                 </button>
-                <button 
-                    @click="currentPage = 'about'"
-                    :class="['w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium outline-none', currentPage === 'about' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800']"
-                >
-                    <Info class="w-5 h-5" /> เกี่ยวกับเว็บไซต์
+                <button @click="currentPage = 'create'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'create' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <PlusCircle class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">เพิ่มท่าฝึกใหม่</span>
+                </button>
+                <button @click="currentPage = 'about'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'about' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <Info class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">เกี่ยวกับเว็บ</span>
                 </button>
             </nav>
             
-            <div class="p-4 border-t border-slate-800">
-                <button 
-                    @click="showFeatureNotReady('ออกจากระบบสำเร็จ')"
-                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 text-sm font-medium transition-all outline-none">
-                    <LogOut class="w-5 h-5" /> ออกจากระบบ
+            <div class="p-4 border-t border-slate-800 hidden md:block">
+                <button @click="showFeatureNotReady('ออกจากระบบสำเร็จ')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 text-sm font-medium transition-all outline-none">
+                    <LogOut class="w-5 h-5 shrink-0" /> ออกจากระบบ
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto relative">
+        <main class="flex-1 overflow-y-auto min-h-0 relative w-full bg-slate-50">
             
-            <!-- Notification Toast -->
             <transition name="fade">
-                <div v-if="toast.show" class="fixed top-6 left-1/2 -translate-x-1/2 z-50">
-                    <div :class="[toast.type === 'success' ? 'bg-emerald-500' : 'bg-slate-800', 'text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 border border-white/20']">
-                        <CheckCircle2 v-if="toast.type === 'success'" class="w-5 h-5" />
-                        <RotateCcw v-else class="w-5 h-5" />
-                        <span class="font-bold">{{ toast.message }}</span>
+                <div v-if="toast.show" class="fixed top-6 left-1/2 -translate-x-1/2 z-[100]">
+                    <div :class="[
+                        toast.type === 'success' ? 'bg-emerald-500' : 
+                        toast.type === 'error' ? 'bg-rose-500' : 'bg-slate-800', 
+                        'text-white px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-white/20 font-medium tracking-wide'
+                    ]">
+                        <CheckCircle2 v-if="toast.type === 'success'" class="w-5 h-5 shrink-0" />
+                        <AlertTriangle v-else-if="toast.type === 'error'" class="w-5 h-5 shrink-0" />
+                        <RotateCcw v-else class="w-5 h-5 shrink-0" />
+                        <span>{{ toast.message }}</span>
                     </div>
                 </div>
             </transition>
 
-            <!-- Exercise Detail Modal -->
             <transition name="fade">
-<<<<<<< HEAD
                 <div v-if="showClearConfirmModal" class="fixed inset-0 z-[70] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="showClearConfirmModal = false">
                     <transition name="modal" appear>
                         <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl flex flex-col items-center text-center relative border border-slate-100">
@@ -523,37 +417,20 @@ const handleReset = () => {
                             <div class="flex flex-col md:flex-row h-full max-h-[90vh] overflow-hidden">
                                 
                                 <div :class="[!viewingExercise.imageUrl ? viewingExercise.color : 'bg-slate-900', 'md:w-2/5 p-8 flex flex-col justify-end text-white relative min-h-[250px] md:min-h-full overflow-hidden shrink-0']">
-=======
-                <div v-if="viewingExercise" class="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="viewingExercise = null">
-                    <transition name="modal" appear>
-                        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col relative">
-                            <!-- Close Button -->
-                            <button @click="viewingExercise = null" class="absolute top-6 right-6 z-20 bg-black/20 hover:bg-black/40 backdrop-blur-md p-2 rounded-full transition-colors">
-                                <X class="w-6 h-6 text-white" />
-                            </button>
-
-                            <div class="flex flex-col md:flex-row h-full overflow-hidden">
-                                <!-- Image/Header Section (Modified for Database Images) -->
-                                <div :class="[!viewingExercise.imageUrl ? viewingExercise.color : 'bg-slate-900', 'md:w-2/5 p-8 flex flex-col justify-end text-white relative min-h-[300px] overflow-hidden']">
-                                    
-                                    <!-- ภาพจาก Database (ถ้ามี) -->
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                     <template v-if="viewingExercise.imageUrl">
-                                        <img :src="viewingExercise.imageUrl" alt="Exercise Image" class="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 hover:scale-105" />
+                                        <img :src="viewingExercise.imageUrl" alt="Exercise Image" class="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 hover:scale-105" crossorigin="anonymous" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
                                     </template>
                                     
-                                    <!-- ไอคอนสำรอง (ถ้าไม่มีภาพ) -->
                                     <Dumbbell v-else class="w-16 h-16 opacity-20 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
 
-                                    <div class="absolute top-8 left-8 z-10">
-                                        <div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-white/10">
+                                    <div class="absolute top-8 left-8 z-10 flex gap-2">
+                                        <div class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-white/10 shadow-sm">
                                             {{ viewingExercise.difficulty }}
                                         </div>
                                     </div>
                                     
                                     <div class="relative z-10">
-<<<<<<< HEAD
                                         <h2 class="text-3xl md:text-4xl font-black mb-4 leading-tight drop-shadow-md">{{ viewingExercise.name }}</h2>
                                         
                                         <div class="flex flex-col gap-2">
@@ -590,36 +467,16 @@ const handleReset = () => {
                                     <div class="mb-8">
                                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">วิธีการฝึก</h4>
                                         <div v-if="viewingExercise.instructions.length" class="space-y-4">
-=======
-                                        <h2 class="text-4xl font-black mb-2 leading-tight drop-shadow-md">{{ viewingExercise.name }}</h2>
-                                        <p class="text-white/80 font-medium drop-shadow-sm flex items-center gap-2">
-                                            <component :is="muscleGroups.find(m => m.id === viewingExercise.muscle)?.icon" class="w-4 h-4" />
-                                            {{ muscleGroups.find(m => m.id === viewingExercise.muscle)?.name }}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <!-- Content Section -->
-                                <div class="flex-1 p-10 overflow-y-auto bg-white">
-                                    <div class="mb-8">
-                                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">คำอธิบาย</h4>
-                                        <p class="text-slate-600 leading-relaxed text-lg">{{ viewingExercise.description }}</p>
-                                    </div>
-
-                                    <div class="mb-8">
-                                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">วิธีการฝึกอย่างละเอียด</h4>
-                                        <div class="space-y-4">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                             <div v-for="(step, idx) in viewingExercise.instructions" :key="idx" class="flex gap-4 items-start">
                                                 <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 font-bold text-sm border border-blue-100">
                                                     {{ idx + 1 }}
                                                 </div>
-                                                <p class="text-slate-600 pt-1">{{ step }}</p>
+                                                <p class="text-slate-600 pt-1 leading-relaxed">{{ step }}</p>
                                             </div>
                                         </div>
+                                        <p v-else class="text-slate-400 italic">ไม่มีข้อมูลวิธีการฝึก</p>
                                     </div>
 
-<<<<<<< HEAD
                                     <div v-if="viewingExercise.videoUrl" class="mb-8">
                                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">วิดีโอสาธิตการฝึก</h4>
                                         <div class="rounded-3xl overflow-hidden shadow-sm border border-slate-100 bg-slate-50">
@@ -669,17 +526,6 @@ const handleReset = () => {
                                             <Calendar class="w-5 h-5 shrink-0" /> 
                                             {{ showDaySelector ? 'ซ่อนหน้าต่างจัดตาราง' : 'เพิ่มในตารางฝึก' }}
                                         </button>
-=======
-                                    <div class="grid grid-cols-2 gap-4 mt-10">
-                                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">อุปกรณ์</p>
-                                            <p class="text-slate-800 font-bold">{{ viewingExercise.equipment || 'ไม่ระบุ' }}</p>
-                                        </div>
-                                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">เซต/ครั้งที่แนะนำ</p>
-                                            <p class="text-slate-800 font-bold">3-4 เซต | 12-15 ครั้ง</p>
-                                        </div>
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                     </div>
 
                                 </div>
@@ -689,12 +535,10 @@ const handleReset = () => {
                 </div>
             </transition>
 
-            <!-- 1. PAGE: Workout Guide (User View) -->
-            <div v-if="currentPage === 'guide'" class="p-8 max-w-6xl mx-auto">
-                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div v-if="currentPage === 'guide'" class="p-6 md:p-8 max-w-6xl mx-auto pb-20">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
                     <div>
                         <h1 class="text-3xl font-black text-slate-800 tracking-tight">คู่มือการออกกำลังกาย</h1>
-<<<<<<< HEAD
                         <p class="text-slate-500 font-medium mt-1">MuscleFit - เลือกส่วนและอุปกรณ์ที่ต้องการฝึก</p>
                     </div>
                     <div class="flex gap-2 flex-wrap items-center">
@@ -708,21 +552,10 @@ const handleReset = () => {
                                 {{ level }}
                             </button>
                         </div>
-=======
-                        <p class="text-slate-500 font-medium">เลือกส่วนที่ต้องการฝึกเพื่อดูรายละเอียด</p>
-                    </div>
-                    <div class="flex gap-2 bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
-                        <button v-for="level in ['ทั้งหมด', 'เริ่มต้น', 'ปานกลาง']" :key="level" @click="selectedDifficulty = level"
-                            :class="['px-6 py-2.5 rounded-xl text-xs font-bold transition-all outline-none', selectedDifficulty === level ? 'bg-slate-800 text-white shadow-lg shadow-slate-200' : 'text-slate-400 hover:text-slate-600']">
-                            {{ level }}
-                        </button>
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                     </div>
                 </div>
 
-                <!-- Help / Guide Banner -->
                 <transition name="fade">
-<<<<<<< HEAD
                     <div v-if="showHelpBanner" class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2rem] p-6 md:p-8 mb-8 text-white relative overflow-hidden shadow-lg shadow-blue-500/20">
                         <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
                         
@@ -740,39 +573,18 @@ const handleReset = () => {
                                     เลือกส่วนกล้ามเนื้อและอุปกรณ์ที่คุณต้องการฝึกจากเมนูด้านล่าง กดที่การ์ดเพื่อดูวิดีโอสาธิตและวิธีการฝึกอย่างละเอียด หรือกดที่ไอคอน <Heart class="w-4 h-4 inline-block mx-1 fill-rose-500 text-rose-500" /> เพื่อบันทึกท่าโปรดของคุณ!
                                 </p>
                             </div>
-=======
-                    <div v-if="showHelpBanner" class="bg-blue-50/80 border border-blue-100 rounded-[2rem] p-6 mb-8 relative flex flex-col md:flex-row gap-6 items-start md:items-center shadow-sm backdrop-blur-sm">
-                        <button @click="showHelpBanner = false" class="absolute top-6 right-6 text-blue-400 hover:text-blue-600 transition-colors bg-white p-2 rounded-full shadow-sm">
-                            <X class="w-4 h-4" />
-                        </button>
-                        <div class="bg-blue-600 p-4 rounded-[1.25rem] text-white shrink-0 shadow-lg shadow-blue-200">
-                            <Lightbulb class="w-8 h-8" />
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-3 tracking-tight">เริ่มต้นใช้งานระบบอย่างไร?</h3>
-                            <ul class="text-sm text-slate-600 space-y-2.5 font-medium">
-                                <li class="flex items-center gap-3"><CheckCircle2 class="w-4 h-4 text-blue-500" /> เลือก <strong>ระดับความยาก</strong> และ <strong>ส่วนกล้ามเนื้อ</strong> ที่แถบเมนูด้านล่างเพื่อกรองข้อมูล</li>
-                                <li class="flex items-center gap-3"><CheckCircle2 class="w-4 h-4 text-blue-500" /> คลิกที่การ์ดท่าออกกำลังกายเพื่อดู <strong>วิธีการฝึกอย่างละเอียด</strong> อุปกรณ์ และรูปภาพประกอบ</li>
-                                <li class="flex items-center gap-3"><CheckCircle2 class="w-4 h-4 text-blue-500" /> ไปที่เมนู <strong>ค้นหาท่าฝึก</strong> ด้านซ้ายมือ หากต้องการค้นหาอย่างรวดเร็ว</li>
-                            </ul>
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                         </div>
                     </div>
                 </transition>
 
-<<<<<<< HEAD
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-2">1. เลือกส่วนกล้ามเนื้อ</h3>
                 <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar snap-x">
-=======
-                <div class="flex gap-4 overflow-x-auto pb-6 no-scrollbar">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                     <button v-for="group in muscleGroups" :key="group.id" @click="selectedMuscle = group.id"
-                        :class="['flex items-center gap-3 px-6 py-4 rounded-[1.25rem] transition-all text-sm font-bold shrink-0 shadow-sm border outline-none', selectedMuscle === group.id ? 'bg-blue-600 text-white border-blue-600 shadow-xl shadow-blue-200 -translate-y-1' : 'bg-white text-slate-600 border-slate-100 hover:border-slate-300']">
-                        <component :is="group.icon" class="w-5 h-5" /> {{ group.name }}
+                        :class="['flex items-center gap-3 px-6 py-4 rounded-[1.25rem] transition-all text-sm font-bold shrink-0 snap-start border outline-none', selectedMuscle === group.id ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 -translate-y-1' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50']">
+                        <component :is="group.icon" class="w-5 h-5 shrink-0" /> {{ group.name }}
                     </button>
                 </div>
 
-<<<<<<< HEAD
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 ml-2 mt-4">2. เลือกอุปกรณ์</h3>
                 <div class="flex gap-3 overflow-x-auto pb-8 no-scrollbar snap-x border-b border-slate-100 mb-6">
                     <button v-for="eq in ['ทั้งหมด', 'น้ำหนักตัว', 'ดัมเบล', 'บาร์เบล', 'เครื่องเล่น']" :key="eq" 
@@ -789,36 +601,39 @@ const handleReset = () => {
                 </div>
 
                 <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-=======
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                     <div v-for="ex in filteredExercises" :key="ex.id" 
                         @click="viewingExercise = ex"
-                        class="group bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all cursor-pointer relative overflow-hidden">
+                        class="group bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all cursor-pointer relative overflow-hidden flex flex-col h-full">
                         
-                        <!-- Thumbnail ภาพหน้าปก หรือ สีพื้นฐาน -->
-                        <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-full h-40 rounded-[1.25rem] flex items-center justify-center text-white mb-6 shadow-inner relative overflow-hidden']">
+                        <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-full h-48 rounded-[1.25rem] flex items-center justify-center text-white mb-6 shadow-inner relative overflow-hidden shrink-0']">
                             <template v-if="ex.imageUrl">
-                                <img :src="ex.imageUrl" alt="thumbnail" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500">
+                                <img :src="ex.imageUrl" alt="thumbnail" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" crossorigin="anonymous">
                             </template>
-                            <Dumbbell v-else class="w-12 h-12 opacity-50 group-hover:scale-110 transition-transform duration-500" />
+                            <Dumbbell v-else class="w-12 h-12 opacity-50 group-hover:scale-110 transition-transform duration-500 shrink-0" />
+                            
+                            <button @click="(e) => toggleFavorite(ex.id, e)" class="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-md hover:scale-110 transition-transform">
+                                <Heart :class="['w-5 h-5 transition-colors shrink-0', favorites.includes(ex.id) ? 'fill-rose-500 text-rose-500' : 'text-slate-400']" />
+                            </button>
                         </div>
                         
-                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 mb-3 block">{{ ex.difficulty }}</span>
-                        <h3 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">{{ ex.name }}</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6">{{ ex.description }}</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-[0.1em]">{{ ex.difficulty }}</span>
+                            <span class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wide">{{ ex.equipment }}</span>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors leading-tight">{{ ex.name }}</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6 flex-1">{{ ex.description || 'ดูรายละเอียดท่าทางการฝึกเพิ่มเติม' }}</p>
                         
-                        <div class="flex items-center text-blue-600 font-black text-xs uppercase tracking-widest pt-4 border-t border-slate-50">
-                            ดูรายละเอียด <ChevronRight class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        <div class="flex items-center text-blue-600 font-black text-xs uppercase tracking-widest pt-4 border-t border-slate-100 mt-auto">
+                            วิธีการฝึก <ChevronRight class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform shrink-0" />
                         </div>
                     </div>
                 </div>
 
-                <div v-if="filteredExercises.length === 0" class="py-20 text-center">
-                    <div class="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <SearchX class="w-10 h-10 text-slate-400" />
+                <div v-if="!isLoading && filteredExercises.length === 0" class="py-20 text-center bg-white rounded-[2rem] border border-slate-200 mt-6">
+                    <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <SearchX class="w-10 h-10 text-slate-400 shrink-0" />
                     </div>
-<<<<<<< HEAD
                     <p class="text-slate-500 font-bold text-lg">ไม่พบท่าออกกำลังกายในหมวดหมู่นี้</p>
                     <button @click="selectedMuscle = 'all'; selectedDifficulty = 'ทั้งหมด'; selectedEquipment = 'ทั้งหมด'; showFavoritesOnly = false" class="mt-4 text-blue-600 font-bold hover:underline">ล้างตัวกรองทั้งหมด</button>
                 </div>
@@ -922,44 +737,28 @@ const handleReset = () => {
                 <div class="mb-8">
                     <h1 class="text-3xl font-black text-slate-800">ค้นหาท่าออกกำลังกาย</h1>
                     <p class="text-slate-500 mt-2 font-medium">ค้นหาตามระดับความยาก อุปกรณ์ และกล้ามเนื้อพร้อมกัน</p>
-=======
-                    <p class="text-slate-400 font-bold text-lg">ไม่พบท่าออกกำลังกายที่คุณต้องการ</p>
-                    <button @click="selectedMuscle = 'all'; selectedDifficulty = 'ทั้งหมด'; searchQuery = ''" class="mt-4 text-blue-600 font-bold underline">ล้างการค้นหา</button>
-                </div>
-            </div>
-
-            <!-- 2. PAGE: Search Exercises -->
-            <div v-if="currentPage === 'admin'" class="p-8 max-w-4xl mx-auto">
-                <div class="mb-10">
-                    <h1 class="text-3xl font-black text-slate-800">ค้นหาท่าออกกำลังกาย</h1>
-                    <p class="text-slate-500 mt-2 font-medium">ค้นหาท่าออกกำลังกายที่คุณต้องการจากฐานข้อมูลทั้งหมดอย่างรวดเร็ว</p>
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                 </div>
 
-                <div class="space-y-8 pb-20">
-                    <!-- Search & Filter Box -->
-                    <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
+                <div class="space-y-6">
+                    <div class="bg-white rounded-[2.5rem] p-6 md:p-8 shadow-sm border border-slate-200">
                         <div class="relative mb-6">
-                            <Search class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
+                            <Search class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400 shrink-0" />
                             <input 
                                 v-model="searchQuery" 
                                 type="text" 
-                                placeholder="พิมพ์ชื่อท่าฝึก หรือคำค้นหา (เช่น Push, ดัมเบล, อก)..." 
-                                class="w-full pl-16 pr-6 py-5 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-lg font-medium text-slate-700" 
+                                placeholder="ค้นหาชื่อท่าฝึก (เช่น สควอท, อก)..." 
+                                class="w-full pl-16 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none text-lg font-medium text-slate-700 placeholder-slate-400" 
                             />
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">ระดับความยาก</label>
-<<<<<<< HEAD
                                 <select v-model="selectedDifficulty" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none font-medium text-slate-600 cursor-pointer">
-=======
-                                <select v-model="selectedDifficulty" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none font-medium text-slate-600">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                     <option value="ทั้งหมด">ทั้งหมด (All Levels)</option>
                                     <option value="เริ่มต้น">เริ่มต้น (Beginner)</option>
                                     <option value="ปานกลาง">ปานกลาง (Intermediate)</option>
+                                    <option value="ขั้นสูง">ขั้นสูง (Advanced)</option>
                                 </select>
                             </div>
                             <div class="space-y-2">
@@ -972,11 +771,7 @@ const handleReset = () => {
                             </div>
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">กล้ามเนื้อ</label>
-<<<<<<< HEAD
                                 <select v-model="selectedMuscle" class="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none font-medium text-slate-600 cursor-pointer">
-=======
-                                <select v-model="selectedMuscle" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none font-medium text-slate-600">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                     <option value="all">ทั้งหมด (All Muscles)</option>
                                     <option v-for="m in muscleGroups.filter(g => g.id !== 'all')" :key="m.id" :value="m.id">
                                         {{ m.name }}
@@ -986,61 +781,58 @@ const handleReset = () => {
                         </div>
                     </div>
 
-                    <!-- Results List -->
                     <div>
-<<<<<<< HEAD
                         <div class="flex items-center justify-between mb-4 px-2">
                             <h3 class="text-lg font-bold text-slate-700">ผลการค้นหา ({{ filteredExercises.length }})</h3>
                             <button v-if="searchQuery || selectedDifficulty !== 'ทั้งหมด' || selectedMuscle !== 'all' || selectedEquipment !== 'ทั้งหมด'" 
                                 @click="searchQuery = ''; selectedMuscle = 'all'; selectedDifficulty = 'ทั้งหมด'; selectedEquipment = 'ทั้งหมด'" 
                                 class="text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors">
-=======
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-xl font-bold text-slate-800">ผลการค้นหา ({{ filteredExercises.length }})</h3>
-                            <button v-if="searchQuery || selectedDifficulty !== 'ทั้งหมด' || selectedMuscle !== 'all'" @click="searchQuery = ''; selectedMuscle = 'all'; selectedDifficulty = 'ทั้งหมด'" class="text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors">
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
                                 ล้างตัวกรอง
                             </button>
                         </div>
 
-                        <div class="space-y-4">
+                        <div v-if="isLoading" class="py-10 text-center">
+                            <Loader2 class="w-8 h-8 text-blue-500 animate-spin mx-auto shrink-0" />
+                        </div>
+
+                        <div v-else class="space-y-4">
                             <div v-for="ex in filteredExercises" :key="ex.id" 
                                 @click="viewingExercise = ex"
-                                class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer flex flex-col md:flex-row md:items-center gap-6 group">
+                                class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col md:flex-row md:items-center gap-5 group">
                                 
                                 <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-16 h-16 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-inner overflow-hidden relative']">
-                                    <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform" />
-                                    <Dumbbell v-else class="w-8 h-8 group-hover:scale-110 transition-transform" />
+                                    <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform" crossorigin="anonymous" />
+                                    <Dumbbell v-else class="w-8 h-8 group-hover:scale-110 transition-transform shrink-0" />
                                 </div>
                                 
                                 <div class="flex-1">
                                     <div class="flex items-center gap-3 mb-1">
                                         <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">{{ ex.difficulty }}</span>
-                                        <span class="text-[10px] font-bold text-slate-400">• {{ muscleGroups.find(m => m.id === ex.muscle)?.name }}</span>
+                                        <span class="text-[10px] font-bold text-slate-400">• {{ muscleGroups.find(m => m.id === ex.muscle)?.name || ex.muscle }}</span>
+                                        <span class="text-[10px] font-bold text-slate-400 border border-slate-200 px-1.5 rounded">{{ ex.equipment }}</span>
                                     </div>
                                     <h4 class="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ ex.name }}</h4>
                                     <p class="text-sm text-slate-500 line-clamp-1 mt-1">{{ ex.description }}</p>
                                 </div>
 
-                                <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors shrink-0">
-                                    <ChevronRight class="w-5 h-5" />
+                                <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors shrink-0 hidden md:flex">
+                                    <ChevronRight class="w-5 h-5 shrink-0" />
                                 </div>
                             </div>
 
-                            <div v-if="filteredExercises.length === 0" class="text-center py-16 bg-white rounded-[2.5rem] border-2 border-slate-100 border-dashed">
-                                <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <SearchX class="w-10 h-10 text-slate-400" />
+                            <div v-if="filteredExercises.length === 0" class="text-center py-16 bg-white rounded-[2.5rem] border-2 border-slate-200 border-dashed">
+                                <div class="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <SearchX class="w-8 h-8 text-slate-400 shrink-0" />
                                 </div>
-                                <p class="text-slate-500 font-bold text-lg">ไม่พบท่าออกกำลังกายที่ตรงกับการค้นหา</p>
-                                <p class="text-slate-400 text-sm mt-2">ลองใช้คำค้นหาอื่น หรือปรับตัวกรองดูนะครับ</p>
+                                <p class="text-slate-600 font-bold text-lg">ไม่พบข้อมูลที่ตรงกับการค้นหา</p>
+                                <p class="text-slate-400 text-sm mt-1">ลองเปลี่ยนคำค้นหา หรือปรับตัวกรองใหม่</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. PAGE: Create Form (Admin) -->
-            <div v-if="currentPage === 'create'" class="p-8 max-w-4xl mx-auto">
+            <div v-if="currentPage === 'create'" class="p-8 max-w-4xl mx-auto pb-20">
                 <div class="mb-10">
                     <h1 class="text-3xl font-black text-slate-800">ระบบจัดการท่าออกกำลังกาย</h1>
                     <p class="text-slate-500 mt-2 font-medium">เพิ่มและแก้ไขฐานข้อมูลท่าออกกำลังกายทั้งหมดในระบบ</p>
@@ -1131,123 +923,168 @@ const handleReset = () => {
                 </div>
             </div>
 
-            <!-- 4. PAGE: BMI Calculator -->
-            <div v-if="currentPage === 'bmi'" class="p-8 max-w-4xl mx-auto">
-                <div class="mb-10 text-center">
-                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <Calculator class="w-10 h-10 text-blue-600" />
+            <div v-if="currentPage === 'bmi'" class="p-6 md:p-8 max-w-4xl mx-auto pb-20">
+                <div class="mb-10 text-center pt-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-blue-500/30 rotate-3">
+                        <Activity class="w-10 h-10 text-white -rotate-3 shrink-0" />
                     </div>
-                    <h1 class="text-4xl font-black text-slate-800 mb-4 tracking-tight">เครื่องคำนวณ BMI</h1>
-                    <p class="text-slate-500 text-lg">ตรวจสอบค่าดัชนีมวลกาย (Body Mass Index) ของคุณ</p>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">เครื่องคำนวณสุขภาพองค์รวม</h1>
+                    <p class="text-slate-500 text-lg">ประเมินค่า BMI, BMR และ TDEE เพื่อวางแผนโภชนาการของคุณ</p>
                 </div>
 
-                <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100 mb-8 max-w-2xl mx-auto">
-                    <div class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">น้ำหนัก (กิโลกรัม)</label>
-                            <div class="relative">
-                                <Activity class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
-                                <input v-model="bmiWeight" type="number" placeholder="เช่น 65" class="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-lg font-medium text-slate-700" />
+                <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-slate-200 max-w-3xl mx-auto">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-sm font-bold text-slate-500 ml-1">เพศ</label>
+                            <div class="flex gap-4">
+                                <label class="flex-1 flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50"
+                                      :class="{'border-blue-500 bg-blue-50/50 text-blue-700': calcGender === 'male'}">
+                                    <input type="radio" v-model="calcGender" value="male" class="hidden">
+                                    <span class="font-bold">ชาย</span>
+                                </label>
+                                <label class="flex-1 flex items-center justify-center gap-2 p-4 border border-slate-200 rounded-2xl cursor-pointer transition-all hover:bg-slate-50"
+                                      :class="{'border-blue-500 bg-blue-50/50 text-blue-700': calcGender === 'female'}">
+                                    <input type="radio" v-model="calcGender" value="female" class="hidden">
+                                    <span class="font-bold">หญิง</span>
+                                </label>
                             </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-500 ml-1">อายุ (ปี)</label>
+                            <input v-model="calcAge" type="number" placeholder="เช่น 25" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none text-lg font-medium text-slate-700" />
                         </div>
                         
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">ส่วนสูง (เซนติเมตร)</label>
-                            <div class="relative">
-                                <User class="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" />
-                                <input v-model="bmiHeight" type="number" placeholder="เช่น 170" class="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none text-lg font-medium text-slate-700" />
-                            </div>
+                            <label class="text-sm font-bold text-slate-500 ml-1">ระดับกิจกรรม</label>
+                            <select v-model="calcActivity" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none text-sm font-medium text-slate-700 cursor-pointer">
+                                <option value="1.2">ไม่ออกกำลังกายเลย</option>
+                                <option value="1.375">ออกกำลังกายเบาๆ (1-3 วัน/สัปดาห์)</option>
+                                <option value="1.55">ออกกำลังกายปานกลาง (3-5 วัน/สัปดาห์)</option>
+                                <option value="1.725">ออกกำลังกายหนัก (6-7 วัน/สัปดาห์)</option>
+                                <option value="1.9">นักกีฬา / ทำงานใช้แรงงานมาก</option>
+                            </select>
                         </div>
 
-                        <div class="flex gap-4 pt-6">
-                            <button @click="calculateBMI" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold text-lg shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-3">
-                                คำนวณผลลัพธ์
-                            </button>
-                            <button @click="resetBMI" class="px-8 py-5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-[1.5rem] font-bold transition-all flex items-center justify-center">
-                                <RotateCcw class="w-5 h-5" />
-                            </button>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-500 ml-1">น้ำหนัก (กก.)</label>
+                            <input v-model="calcWeight" type="number" placeholder="เช่น 65" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none text-lg font-medium text-slate-700" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-500 ml-1">ส่วนสูง (ซม.)</label>
+                            <input v-model="calcHeight" type="number" placeholder="เช่น 170" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all outline-none text-lg font-medium text-slate-700" />
                         </div>
                     </div>
 
-                    <!-- BMI Result Display -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4 border-b border-slate-100 pb-8">
+                        <button @click="calculateHealth" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-[1.25rem] font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-3">
+                            <Calculator class="w-5 h-5 shrink-0"/> คำนวณผลลัพธ์
+                        </button>
+                        <button @click="resetCalculator" class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-[1.25rem] font-bold transition-all flex items-center justify-center">
+                            <RotateCcw class="w-5 h-5 shrink-0" />
+                        </button>
+                    </div>
+
                     <transition name="fade">
-                        <div v-if="bmiResult" class="mt-10 pt-10 border-t border-slate-100 text-center">
-                            <h3 class="text-slate-500 font-bold mb-2">ค่า BMI ของคุณคือ</h3>
-                            <div class="text-6xl font-black mb-4" :class="bmiColor">{{ bmiResult }}</div>
-                            <div class="inline-block px-6 py-2 rounded-full font-bold text-lg bg-slate-50 border border-slate-100" :class="bmiColor">
-                                {{ bmiCategory }}
+                        <div v-if="bmiResult" class="mt-8">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-slate-50 rounded-3xl p-6 text-center border border-slate-100 flex flex-col items-center justify-center relative overflow-hidden">
+                                    <div :class="['absolute top-0 left-0 w-full h-1', bmiColor.split(' ')[2]]"></div>
+                                    <p class="text-sm font-bold text-slate-400 mb-1">BMI (ดัชนีมวลกาย)</p>
+                                    <p class="text-4xl font-black text-slate-800 mb-2">{{ bmiResult }}</p>
+                                    <div class="px-3 py-1 rounded text-xs font-bold" :class="bmiColor">
+                                        {{ bmiCategory }}
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-50 rounded-3xl p-6 text-center border border-slate-100 flex flex-col items-center justify-center">
+                                    <p class="text-sm font-bold text-slate-400 mb-1">BMR (เผาผลาญพื้นฐาน)</p>
+                                    <p class="text-4xl font-black text-blue-600 mb-1">{{ bmrResult }}</p>
+                                    <p class="text-xs font-bold text-slate-500">kcal / วัน</p>
+                                </div>
+
+                                <div class="bg-slate-800 text-white rounded-3xl p-6 text-center shadow-lg flex flex-col items-center justify-center relative overflow-hidden">
+                                    <div class="absolute -right-4 -top-4 opacity-10">
+                                        <Zap class="w-24 h-24 shrink-0" />
+                                    </div>
+                                    <p class="text-sm font-bold text-slate-300 mb-1 relative z-10">TDEE (เผาผลาญรวม)</p>
+                                    <p class="text-4xl font-black text-emerald-400 mb-1 relative z-10">{{ tdeeResult }}</p>
+                                    <p class="text-xs font-bold text-slate-400 relative z-10">kcal / วัน</p>
+                                </div>
                             </div>
                             
-                            <p class="text-slate-500 text-sm mt-6 leading-relaxed max-w-md mx-auto">
-                                *เกณฑ์ดัชนีมวลกายนี้อ้างอิงสำหรับชาวเอเชีย หากคุณเป็นนักกีฬาที่มีมวลกล้ามเนื้อมาก ค่า BMI อาจไม่สะท้อนถึงปริมาณไขมันที่แท้จริง
-                            </p>
+                            <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50 text-left flex items-start gap-4">
+                                <Info class="w-6 h-6 text-blue-500 shrink-0 mt-0.5" />
+                                <div class="text-slate-600 text-sm leading-relaxed space-y-2">
+                                    <p><strong>คำแนะนำ:</strong> หากต้องการ <strong>ลดน้ำหนัก</strong> ควรทานให้น้อยกว่าค่า TDEE ประมาณ 300-500 kcal/วัน</p>
+                                    <p>หากต้องการ <strong>เพิ่มกล้ามเนื้อ</strong> ควรทานให้มากกว่าค่า TDEE ประมาณ 300-500 kcal/วัน ควบคู่กับการเวทเทรนนิ่ง</p>
+                                </div>
+                            </div>
                         </div>
                     </transition>
                 </div>
             </div>
 
-            <!-- 5. PAGE: About Us -->
-            <div v-if="currentPage === 'about'" class="p-8 max-w-4xl mx-auto">
-                <div class="mb-10 text-center">
+            <div v-if="currentPage === 'about'" class="p-6 md:p-8 max-w-4xl mx-auto pb-20">
+                <div class="mb-10 text-center pt-4">
                     <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <Dumbbell class="w-10 h-10 text-blue-600" />
+                        <Dumbbell class="w-10 h-10 text-blue-600 shrink-0" />
                     </div>
-                    <h1 class="text-4xl font-black text-slate-800 mb-4 tracking-tight">เกี่ยวกับ FitFlex</h1>
-                    <p class="text-slate-500 text-lg">แพลตฟอร์มคู่มือการออกกำลังกายที่ออกแบบมาเพื่อทุกคน</p>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-3 tracking-tight">เกี่ยวกับ MuscleFit</h1>
+                    <p class="text-slate-500 text-lg">แพลตฟอร์มคู่มือการออกกำลังกายที่สร้างมาเพื่อทุกคน</p>
                 </div>
 
-                <div class="space-y-8 pb-20">
-                    <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100 relative overflow-hidden">
-                        <!-- Background decoration -->
+                <div class="space-y-8">
+                    <div class="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-sm border border-slate-200 relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 pointer-events-none"></div>
 
                         <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 relative z-10">
-                            <Target class="w-6 h-6 text-blue-600" /> จุดประสงค์ของเว็บไซต์
+                            <Target class="w-6 h-6 text-blue-600 shrink-0" /> จุดประสงค์ของเว็บไซต์
                         </h2>
                         <p class="text-slate-600 leading-relaxed text-lg mb-10 relative z-10">
-                            เว็บไซต์ <strong class="text-blue-600">FitFlex</strong> ถูกสร้างขึ้นมาเพื่อเป็นแหล่งรวบรวมข้อมูลท่าออกกำลังกายที่ถูกต้อง เข้าใจง่าย และสามารถเข้าถึงได้ฟรีสำหรับทุกคน ไม่ว่าคุณจะเป็นผู้เริ่มต้นที่เพิ่งเริ่มเข้ายิม หรือผู้ที่มีประสบการณ์แล้ว เราตั้งใจให้แพลตฟอร์มนี้ช่วยให้คุณสามารถจัดตารางและค้นหาท่าออกกำลังกายที่เหมาะสมกับเป้าหมายของคุณได้อย่างมีประสิทธิภาพและปลอดภัย
+                            เว็บไซต์ <strong class="text-blue-600 font-black">MuscleFit</strong> ถูกออกแบบมาเพื่อเป็นฐานข้อมูลที่ใช้งานง่าย รวบรวมท่าออกกำลังกายที่ปลอดภัยและมีประสิทธิภาพ ไม่ว่าคุณจะเป็นมือใหม่ที่เพิ่งเข้ายิมวันแรก หรือมือโปรที่ต้องการทบทวนท่าทาง เราพร้อมที่จะเป็นผู้ช่วยให้คุณบรรลุเป้าหมายทางสุขภาพ
                         </p>
 
                         <h2 class="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-3 mt-12 relative z-10">
-                            <Star class="w-6 h-6 text-amber-500" /> สิ่งที่คุณจะได้รับจากแพลตฟอร์มนี้
+                            <Star class="w-6 h-6 text-amber-500 shrink-0" /> ฟีเจอร์หลัก
                         </h2>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 hover:bg-white hover:shadow-lg transition-all">
                                 <div class="bg-blue-100 w-12 h-12 rounded-2xl flex items-center justify-center text-blue-600 mb-4">
-                                    <Search class="w-6 h-6" />
+                                    <Calendar class="w-6 h-6 shrink-0" />
                                 </div>
-                                <h3 class="font-bold text-slate-800 mb-2">ค้นหาท่าฝึกได้ง่ายดาย</h3>
-                                <p class="text-sm text-slate-500">ระบบกรองท่าออกกำลังกายตามส่วนกล้ามเนื้อและระดับความยาก</p>
+                                <h3 class="font-bold text-slate-800 mb-2">จัดตารางฝึก</h3>
+                                <p class="text-sm text-slate-500">เลือกท่าต่างๆ ลงในวันจันทร์-อาทิตย์ เพื่อวางแผนออกกำลังกาย</p>
                             </div>
-                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
-                                <div class="bg-emerald-100 w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
-                                    <BookOpen class="w-6 h-6" />
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 hover:bg-white hover:shadow-lg transition-all">
+                                <div class="bg-rose-100 w-12 h-12 rounded-2xl flex items-center justify-center text-rose-500 mb-4">
+                                    <Heart class="w-6 h-6 shrink-0" />
                                 </div>
-                                <h3 class="font-bold text-slate-800 mb-2">คำอธิบายอย่างละเอียด</h3>
-                                <p class="text-sm text-slate-500">ขั้นตอนการฝึกที่ชัดเจน พร้อมคำแนะนำเรื่องอุปกรณ์และจำนวนเซต</p>
+                                <h3 class="font-bold text-slate-800 mb-2">บันทึกท่าโปรด</h3>
+                                <p class="text-sm text-slate-500">เลือกเก็บท่าออกกำลังกายที่ชอบไว้ดูส่วนตัวได้</p>
                             </div>
-                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 hover:bg-white hover:shadow-lg transition-all">
                                 <div class="bg-purple-100 w-12 h-12 rounded-2xl flex items-center justify-center text-purple-600 mb-4">
-                                    <ImageIcon class="w-6 h-6" />
+                                    <Calculator class="w-6 h-6 shrink-0" />
                                 </div>
-                                <h3 class="font-bold text-slate-800 mb-2">ภาพประกอบชัดเจน</h3>
-                                <p class="text-sm text-slate-500">มีรูปภาพประกอบเพื่อช่วยให้เข้าใจท่าทางการเคลื่อนไหวได้ถูกต้อง</p>
+                                <h3 class="font-bold text-slate-800 mb-2">คำนวณสุขภาพ</h3>
+                                <p class="text-sm text-slate-500">มีเครื่องมือเช็คดัชนีมวลกาย BMI, BMR และ TDEE</p>
                             </div>
-                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
-                                <div class="bg-rose-100 w-12 h-12 rounded-2xl flex items-center justify-center text-rose-600 mb-4">
-                                    <Smartphone class="w-6 h-6" />
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 hover:bg-white hover:shadow-lg transition-all">
+                                <div class="bg-emerald-100 w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-600 mb-4">
+                                    <Smartphone class="w-6 h-6 shrink-0" />
                                 </div>
                                 <h3 class="font-bold text-slate-800 mb-2">รองรับทุกอุปกรณ์</h3>
-                                <p class="text-sm text-slate-500">ใช้งานได้สะดวกทั้งบนคอมพิวเตอร์ แท็บเล็ต และโทรศัพท์มือถือ</p>
+                                <p class="text-sm text-slate-500">UI ถูกออกแบบมาให้ใช้งานได้ดีทั้งบนมือถือและคอมพิวเตอร์</p>
                             </div>
                         </div>
 
-                        <div class="mt-12 bg-amber-50 border border-amber-200 rounded-3xl p-6 flex gap-4 items-start relative z-10">
-                            <AlertTriangle class="w-6 h-6 text-amber-600 shrink-0 mt-1" />
+                        <div class="mt-12 bg-rose-50 border border-rose-200 rounded-3xl p-6 flex gap-4 items-start relative z-10">
+                            <AlertTriangle class="w-6 h-6 text-rose-600 shrink-0 mt-1" />
                             <div>
-                                <h4 class="font-bold text-amber-800 mb-1">ข้อจำกัดความรับผิดชอบ (Disclaimer)</h4>
-                                <p class="text-sm text-amber-700 leading-relaxed">ข้อมูลบนเว็บไซต์นี้มีวัตถุประสงค์เพื่อเป็นแนวทางเบื้องต้นเท่านั้น หากคุณมีปัญหาสุขภาพ มีโรคประจำตัว มีอาการบาดเจ็บ หรือเพิ่งเริ่มต้นออกกำลังกาย ควรปรึกษาแพทย์หรือผู้เชี่ยวชาญก่อนเริ่มต้นโปรแกรมการออกกำลังกายใดๆ เพื่อความปลอดภัยสูงสุดของคุณ</p>
+                                <h4 class="font-bold text-rose-800 mb-1">ข้อควรระวัง (Disclaimer)</h4>
+                                <p class="text-sm text-rose-700 leading-relaxed">ข้อมูลทั้งหมดบนแพลตฟอร์มเป็นเพียงแนวทางทั่วไปเท่านั้น หากคุณมีโรคประจำตัวหรือเคยได้รับบาดเจ็บ โปรดปรึกษาแพทย์หรือนักกายภาพบำบัดก่อนเริ่มต้นโปรแกรมการออกกำลังกายทุกครั้ง</p>
                             </div>
                         </div>
 
@@ -1273,8 +1110,8 @@ const handleReset = () => {
 
                     </div>
                 </div>
+            </div>
 
-<<<<<<< HEAD
             <div style="position: absolute; top: -9999px; left: -9999px; width: 800px; z-index: -10;">
                 <div id="weekly-export-container" class="bg-white p-10 font-sans" ref="weeklyPlanRef">
                     <div class="flex items-center gap-4 mb-8 pb-6 border-b-2 border-slate-100">
@@ -1333,15 +1170,11 @@ const handleReset = () => {
             </div>
 
         </main>
-=======
-            </main>
-        </div>
->>>>>>> e33c28fab626dfb1db597edd3738fea0daf72f9e
     </div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;900&display=swap');
 
 .font-sans {
     font-family: 'Prompt', sans-serif;
@@ -1353,7 +1186,7 @@ const handleReset = () => {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
-.modal-enter-active, .modal-leave-active { transition: all 0.3s ease-out; }
+.modal-enter-active, .modal-leave-active { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 .modal-enter-from { opacity: 0; transform: scale(0.95) translateY(20px); }
 .modal-leave-to { opacity: 0; transform: scale(0.95) translateY(20px); }
 </style>
