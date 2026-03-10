@@ -43,7 +43,7 @@ app.get('/api/exercises/filter', (req, res) => {
     });
 });
 
-// 3. ดึงข้อมูลท่าเดียว (Public API)
+
 app.get('/api/exercises/:id', (req, res) => {
     const id = req.params.id;
     db.get('SELECT * FROM exercises WHERE exercise_id = ?', [id], (err, row) => {
@@ -53,23 +53,19 @@ app.get('/api/exercises/:id', (req, res) => {
     });
 });
 
-// 4. เพิ่มท่าฝึกใหม่ (Protected API - ต้องมีรหัสผ่าน) 
+
 app.post('/api/exercises', (req, res) => {
     const authHeader = req.headers['authorization'];
     if (authHeader !== 'Bearer admin1234') {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // 1. ลบ benefits ออกจากตรงนี้
     const { name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url } = req.body;
 
-    // 2. ลบ benefits และเครื่องหมาย ? ออกจากคำสั่ง SQL (เหลือ ? แค่ 11 ตัว)
     const sql = `INSERT INTO exercises (name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    
-    // 3. ลบ benefits ออกจากรายการ params
     const params = [name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url];
-
+ 
     db.run(sql, params, function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ 
@@ -79,6 +75,36 @@ app.post('/api/exercises', (req, res) => {
     });
 });
 
+app.delete('/api/exercises/:id', (req, res) => {
+    // 1. เช็ครหัสผ่านจาก Header เหมือนเดิม
+    const authHeader = req.headers['authorization'];
+    if (authHeader !== 'Bearer admin1234') {
+        return res.status(401).json({ error: 'Unauthorized: รหัสผ่านไม่ถูกต้อง' });
+    }
+
+    const id = req.params.id; // รับ ID จาก URL
+
+    // 2. ใช้คำสั่ง SQL DELETE
+    const sql = 'DELETE FROM exercises WHERE exercise_id = ?';
+
+    db.run(sql, [id], function(err) {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+        
+        // 3. เช็คว่ามีการลบจริงไหม (ถ้า ID ไม่มีในระบบ changes จะเป็น 0)
+        if (this.changes === 0) {
+            return res.status(404).json({ message: 'ไม่พบข้อมูลที่ต้องการลบ' });
+        }
+
+        res.json({ 
+            message: `ลบข้อมูลท่าฝึกไอดี ${id} สำเร็จเรียบร้อยแล้ว!`,
+            changes: this.changes 
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
 });
+
