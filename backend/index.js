@@ -55,27 +55,25 @@ app.get('/api/exercises/:id', (req, res) => {
 
 // 4. เพิ่มท่าฝึกใหม่ (Protected API - ต้องมีรหัสผ่าน) 
 app.post('/api/exercises', (req, res) => {
-    // เช็ครหัสผ่านจาก Header
     const authHeader = req.headers['authorization'];
-    
-    // ตั้งรหัสผ่านแอดมินไว้ที่ 'admin1234'
     if (authHeader !== 'Bearer admin1234') {
-        return res.status(401).json({ error: 'Unauthorized: รหัสผ่านแอดมินไม่ถูกต้อง' });
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // 🟢 อัปเดต: รับค่า secondary_muscle และ video_url เพิ่มเติม
-    const { name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, benefits, media_url, video_url } = req.body;
+    // 1. ลบ benefits ออกจากตรงนี้
+    const { name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url } = req.body;
 
-    // 🟢 อัปเดต: เพิ่มคอลัมน์ลงในคำสั่ง SQL
-    const sql = `INSERT INTO exercises (name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, benefits, media_url, video_url) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    // 2. ลบ benefits และเครื่องหมาย ? ออกจากคำสั่ง SQL (เหลือ ? แค่ 11 ตัว)
+    const sql = `INSERT INTO exercises (name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
-    const params = [name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, benefits, media_url, video_url];
+    // 3. ลบ benefits ออกจากรายการ params
+    const params = [name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url];
 
     db.run(sql, params, function(err) {
         if (err) return res.status(500).json({ error: err.message });
         res.status(201).json({ 
-            message: 'เพิ่มข้อมูลท่าออกกำลังกายสำเร็จ!',
+            message: 'เพิ่มข้อมูลสำเร็จ!',
             exercise_id: this.lastID 
         });
     });

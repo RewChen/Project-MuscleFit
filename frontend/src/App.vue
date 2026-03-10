@@ -2,10 +2,10 @@
 import { ref, computed, onMounted } from 'vue';
 import html2canvas from 'html2canvas'; 
 import { 
-    Dumbbell, Layout, Search, Calculator, Info, User, 
+    Dumbbell, Layout, Search, Calculator, Info, PlusCircle, User, 
     LogOut, CheckCircle2, RotateCcw, X, Lightbulb, ChevronRight, 
-    SearchX, Target, Star, BookOpen, Smartphone, 
-    AlertTriangle, Activity, Layers, Accessibility, Armchair, Wind,
+    SearchX, Target, Star, BookOpen, Image as ImageIcon, Smartphone, 
+    AlertTriangle, Activity, Save, Layers, Accessibility, Armchair, Wind,
     Heart, Loader2, Zap, Calendar, Trash2, Download
 } from 'lucide-vue-next';
 
@@ -13,7 +13,7 @@ import {
 const currentPage = ref('guide');
 const toast = ref({ show: false, message: '', type: 'success' });
 const viewingExercise = ref(null);
-const showHelpBanner = ref(true); // 🟢 ตัวแปรเปิด/ปิดป้ายสอนใช้งาน
+const showHelpBanner = ref(true); 
 const isLoading = ref(true);
 const showDaySelector = ref(false); 
 
@@ -54,6 +54,17 @@ const bmiCategory = ref('');
 const bmiColor = ref('');
 const bmrResult = ref(null);
 const tdeeResult = ref(null);
+
+// --- 4. Admin Create Form State ---
+const newExercise = ref({
+    nameTh: '',
+    nameEn: '',
+    difficulty: 'Beginner (เริ่มต้น)',
+    category: 'หน้าอก (Chest)',
+    muscles: [],
+    equipment: 'Bodyweight',
+    imageUrl: ''
+});
 
 const muscleGroups = [
     { id: 'all', name: 'ทั้งหมด', icon: Layout },
@@ -145,7 +156,7 @@ onMounted(() => {
     });
 });
 
-// --- 4. Computed Properties ---
+// --- Computed Properties ---
 const filteredExercises = computed(() => {
     return exercises.value.filter(ex => {
         const muscleMatch = selectedMuscle.value === 'all' || ex.muscle === selectedMuscle.value;
@@ -175,10 +186,19 @@ const getExerciseById = (id) => {
     return exercises.value.find(ex => ex.id === id);
 };
 
-// --- 5. Methods & Logic ---
+// --- Methods & Logic ---
 const showToast = (message, type = 'success') => {
     toast.value = { show: true, message, type };
     setTimeout(() => toast.value.show = false, 2000);
+};
+
+const showFeatureNotReady = (customMessage) => {
+    toast.value = { 
+        show: true, 
+        message: typeof customMessage === 'string' ? customMessage : 'กำลังพัฒนาระบบส่วนนี้ครับ...', 
+        type: 'reset' 
+    };
+    setTimeout(() => { toast.value.show = false; }, 1500);
 };
 
 const toggleFavorite = (id, event) => {
@@ -287,6 +307,22 @@ const resetCalculator = () => {
     bmiResult.value = null; bmrResult.value = null; tdeeResult.value = null;
     showToast('รีเซ็ตข้อมูลแล้ว', 'reset');
 };
+
+const handleSave = () => {
+    showFeatureNotReady('ระบบบันทึกข้อมูลกำลังพัฒนา');
+};
+
+const handleReset = () => {
+    newExercise.value = {
+        nameTh: '',
+        nameEn: '',
+        difficulty: 'Beginner (เริ่มต้น)',
+        category: 'หน้าอก (Chest)',
+        muscles: [],
+        equipment: 'Bodyweight',
+        imageUrl: ''
+    };
+};
 </script>
 
 <template>
@@ -313,10 +349,19 @@ const resetCalculator = () => {
                 <button @click="currentPage = 'bmi'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'bmi' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
                     <Calculator class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">คำนวณสุขภาพ</span>
                 </button>
+                <button @click="currentPage = 'create'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'create' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
+                    <PlusCircle class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">เพิ่มท่าฝึกใหม่</span>
+                </button>
                 <button @click="currentPage = 'about'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'about' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
                     <Info class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">เกี่ยวกับเว็บ</span>
                 </button>
             </nav>
+            
+            <div class="p-4 border-t border-slate-800 hidden md:block">
+                <button @click="showFeatureNotReady('ออกจากระบบสำเร็จ')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 text-sm font-medium transition-all outline-none">
+                    <LogOut class="w-5 h-5 shrink-0" /> ออกจากระบบ
+                </button>
+            </div>
         </aside>
 
         <main class="flex-1 overflow-y-auto min-h-0 relative w-full bg-slate-50">
@@ -373,7 +418,7 @@ const resetCalculator = () => {
                                 
                                 <div :class="[!viewingExercise.imageUrl ? viewingExercise.color : 'bg-slate-900', 'md:w-2/5 p-8 flex flex-col justify-end text-white relative min-h-[250px] md:min-h-full overflow-hidden shrink-0']">
                                     <template v-if="viewingExercise.imageUrl">
-                                        <img :src="viewingExercise.imageUrl" alt="Exercise Image" class="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 hover:scale-105" crossorigin="anonymous" />
+                                        <img :src="viewingExercise.imageUrl" alt="Exercise Image" @error="viewingExercise.imageUrl = null" class="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 hover:scale-105" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
                                     </template>
                                     
@@ -562,7 +607,7 @@ const resetCalculator = () => {
                         
                         <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-full h-48 rounded-[1.25rem] flex items-center justify-center text-white mb-6 shadow-inner relative overflow-hidden shrink-0']">
                             <template v-if="ex.imageUrl">
-                                <img :src="ex.imageUrl" alt="thumbnail" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" crossorigin="anonymous">
+                                <img :src="ex.imageUrl" alt="thumbnail" @error="ex.imageUrl = null" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700">
                             </template>
                             <Dumbbell v-else class="w-12 h-12 opacity-50 group-hover:scale-110 transition-transform duration-500 shrink-0" />
                             
@@ -671,7 +716,7 @@ const resetCalculator = () => {
                             </div>
                             
                             <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-16 h-16 rounded-xl flex items-center justify-center text-white shrink-0 overflow-hidden relative']">
-                                <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" class="absolute inset-0 w-full h-full object-cover opacity-80" crossorigin="anonymous" />
+                                <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" @error="ex.imageUrl = null" class="absolute inset-0 w-full h-full object-cover opacity-80" />
                                 <Dumbbell v-else class="w-6 h-6 opacity-50 shrink-0" />
                             </div>
                             
@@ -756,7 +801,7 @@ const resetCalculator = () => {
                                 class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-pointer flex flex-col md:flex-row md:items-center gap-5 group">
                                 
                                 <div :class="[!ex.imageUrl ? ex.color : 'bg-slate-800', 'w-16 h-16 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-inner overflow-hidden relative']">
-                                    <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform" crossorigin="anonymous" />
+                                    <img v-if="ex.imageUrl" :src="ex.imageUrl" alt="img" @error="ex.imageUrl = null" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform" />
                                     <Dumbbell v-else class="w-8 h-8 group-hover:scale-110 transition-transform shrink-0" />
                                 </div>
                                 
@@ -783,6 +828,97 @@ const resetCalculator = () => {
                                 <p class="text-slate-400 text-sm mt-1">ลองเปลี่ยนคำค้นหา หรือปรับตัวกรองใหม่</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="currentPage === 'create'" class="p-8 max-w-4xl mx-auto pb-20">
+                <div class="mb-10">
+                    <h1 class="text-3xl font-black text-slate-800">ระบบจัดการท่าออกกำลังกาย</h1>
+                    <p class="text-slate-500 mt-2 font-medium">เพิ่มและแก้ไขฐานข้อมูลท่าออกกำลังกายทั้งหมดในระบบ</p>
+                </div>
+
+                <div class="space-y-8 pb-20">
+                    <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-5 mb-8">
+                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg">1</div>
+                            <h2 class="text-xl font-bold text-slate-800">ข้อมูลพื้นฐานและรูปภาพ</h2>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">ชื่อท่า (ภาษาไทย)</label>
+                                <input v-model="newExercise.nameTh" type="text" placeholder="เช่น วิดพื้น" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">ชื่อท่า (ENGLISH)</label>
+                                <input v-model="newExercise.nameEn" type="text" placeholder="เช่น Push-up" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">ระดับความยาก</label>
+                                <select v-model="newExercise.difficulty" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none">
+                                    <option>Beginner (เริ่มต้น)</option>
+                                    <option>Intermediate (ปานกลาง)</option>
+                                    <option>Advanced (ขั้นสูง)</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">หมวดหมู่หลัก</label>
+                                <select v-model="newExercise.category" class="w-full px-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 transition-all outline-none appearance-none">
+                                    <option>หน้าอก (Chest)</option>
+                                    <option>แผ่นหลัง (Back)</option>
+                                    <option>แขน (Arms)</option>
+                                    <option>ขา (Legs)</option>
+                                    <option>หน้าท้อง (Abs)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-2 border-t border-slate-100 pt-8">
+                            <label class="text-sm font-bold text-slate-400 uppercase tracking-wider ml-1">URL รูปภาพอ้างอิง (Optional)</label>
+                            <div class="flex items-center relative">
+                                <ImageIcon class="absolute left-4 text-slate-400 w-5 h-5" />
+                                <input v-model="newExercise.imageUrl" type="url" placeholder="https://example.com/image.jpg" class="w-full pl-12 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all outline-none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                        <div class="flex items-center gap-5 mb-8">
+                            <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                            <h2 class="text-xl font-bold text-slate-800">กล้ามเนื้อและอุปกรณ์</h2>
+                        </div>
+
+                        <div class="space-y-8">
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">กล้ามเนื้อที่เกี่ยวข้อง</label>
+                                <div class="flex flex-wrap gap-3">
+                                    <label v-for="m in ['อกส่วนบน', 'อกส่วนกลาง', 'หลังแขน', 'หัวไหล่', 'หน้าท้อง']" :key="m" class="flex items-center gap-3 px-5 py-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                                        <input type="checkbox" :value="m" v-model="newExercise.muscles" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                        <span class="text-sm font-bold text-slate-600">{{ m }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 block">อุปกรณ์ที่จำเป็น</label>
+                                <div class="flex flex-wrap gap-6">
+                                    <label v-for="e in ['Bodyweight', 'Dumbbell', 'Barbell']" :key="e" class="flex items-center gap-3 cursor-pointer group">
+                                        <input type="radio" :value="e" v-model="newExercise.equipment" class="w-5 h-5 border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                        <span class="text-sm font-bold text-slate-600 group-hover:text-blue-600 transition-colors">{{ e }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 pt-4">
+                        <button @click="handleSave" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold text-lg shadow-xl shadow-blue-200 transition-all flex items-center justify-center gap-3">
+                            <Save class="w-6 h-6" /> บันทึกและเผยแพร่
+                        </button>
+                        <button @click="handleReset" class="px-10 py-5 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-[1.5rem] font-bold transition-all flex items-center justify-center gap-3">
+                            <RotateCcw class="w-5 h-5" /> ล้างข้อมูล
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1007,7 +1143,7 @@ const resetCalculator = () => {
                                         </div>
                                         
                                         <div class="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-slate-800 flex items-center justify-center relative">
-                                            <img v-if="getExerciseById(exId)?.imageUrl" :src="getExerciseById(exId).imageUrl" class="absolute inset-0 w-full h-full object-cover" crossorigin="anonymous" />
+                                            <img v-if="getExerciseById(exId)?.imageUrl" :src="getExerciseById(exId).imageUrl" @error="getExerciseById(exId).imageUrl = null" class="absolute inset-0 w-full h-full object-cover" />
                                             <Dumbbell v-else class="w-5 h-5 text-white opacity-50 shrink-0" />
                                         </div>
                                         
