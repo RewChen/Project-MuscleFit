@@ -82,7 +82,7 @@ const exercises = ref([]);
 const fetchExercises = async () => {
     isLoading.value = true;
     try {
-        const response = await fetch('http://localhost:3000/api/exercises', { cache: 'no-store' });
+        const response = await fetch('https://faithful-caring-production.up.railway.app/api/exercises', { cache: 'no-store' });
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         
