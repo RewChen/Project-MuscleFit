@@ -199,13 +199,12 @@ const getExerciseById = (id) => {
 
 // [NEW] Login Logic
 const handleLogin = () => {
-    // กำหนด Username และ Password สำหรับแอดมิน (สามารถแก้ไขให้ต่อ API ได้ในอนาคต)
     if (loginUsername.value === 'admin' && loginPassword.value === '1234') {
         isAdminLoggedIn.value = true;
         loginError.value = '';
         localStorage.setItem('musclefit_admin', 'true');
         showToast('เข้าสู่ระบบแอดมินสำเร็จ', 'success');
-        currentPage.value = 'create'; // เข้าสู่หน้าเพิ่มท่าฝึก
+        currentPage.value = 'create'; 
     } else {
         loginError.value = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
     }
@@ -227,9 +226,6 @@ const deleteExercise = async (id, name, event) => {
     if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบท่า "${name}" ?\nข้อมูลนี้จะไม่สามารถกู้คืนได้`)) return;
 
     try {
-        // [TODO]: ใส่ Code ยิง API ลบจาก Backend ตรงนี้ เช่น
-        // await fetch(`https://faithful-caring-production.up.railway.app/api/exercises/${id}`, { method: 'DELETE' });
-
         // ลบออกจาก State ส่วนหน้า
         exercises.value = exercises.value.filter(ex => ex.id !== id);
         
@@ -252,15 +248,6 @@ const deleteExercise = async (id, name, event) => {
 const showToast = (message, type = 'success') => {
     toast.value = { show: true, message, type };
     setTimeout(() => toast.value.show = false, 2000);
-};
-
-const showFeatureNotReady = (customMessage) => {
-    toast.value = { 
-        show: true, 
-        message: typeof customMessage === 'string' ? customMessage : 'กำลังพัฒนาระบบส่วนนี้ครับ...', 
-        type: 'reset' 
-    };
-    setTimeout(() => { toast.value.show = false; }, 1500);
 };
 
 const toggleFavorite = (id, event) => {
@@ -370,10 +357,62 @@ const resetCalculator = () => {
     showToast('รีเซ็ตข้อมูลแล้ว', 'reset');
 };
 
-const handleSave = () => {
-    showFeatureNotReady('ระบบบันทึกข้อมูลกำลังพัฒนา');
-};
+const handleSave = async () => {
+    if (!newExercise.value.nameTh) {
+        showToast('กรุณากรอกชื่อท่าฝึกภาษาไทย', 'error');
+        return;
+    }
 
+    showToast('กำลังบันทึกข้อมูลลงฐานข้อมูล...', 'success');
+
+    try {
+        const diffMatch = newExercise.value.difficulty.match(/^(.*?)\s*\(/);
+        const difficultyPayload = diffMatch ? diffMatch[1] : 'Beginner';
+
+        const catMatch = newExercise.value.category.match(/^(.*?)\s*\(/);
+        const categoryPayload = catMatch ? catMatch[1] : newExercise.value.category;
+
+        const payload = {
+            name_th: newExercise.value.nameTh,
+            name_en: newExercise.value.nameEn,
+            muscle_group: categoryPayload.trim(),
+            difficulty: difficultyPayload.trim(),
+            equipment: newExercise.value.equipment,
+            media_url: newExercise.value.imageUrl || '',
+            secondary_muscle: newExercise.value.muscles.join(', '), 
+            description: 'ท่าฝึกใหม่ (รออัปเดตคำอธิบาย)', 
+            instructions: '', 
+            video_url: ''
+        };
+
+        const response = await fetch('https://faithful-caring-production.up.railway.app/api/exercises', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // [NEW] เพิ่มการเช็ค Error จาก Backend โดยตรง
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            console.error("❌ Backend Error:", errorData || response.statusText);
+            throw new Error(`Error ${response.status}: ${errorData ? JSON.stringify(errorData) : 'Unknown Error'}`);
+        }
+
+        showToast('เพิ่มท่าฝึกเข้าสู่ฐานข้อมูลสำเร็จ!', 'success');
+        
+        handleReset(); 
+        await fetchExercises(); 
+        currentPage.value = 'guide'; 
+
+    } catch (error) {
+        console.error('❌ Error Details:', error.message);
+        // แสดงข้อความ Error จริงๆ ให้แอดมินเห็นเลย
+        showToast('บันทึกไม่สำเร็จ (ดูรายละเอียดใน Console)', 'error');
+    }
+};
+// [UPDATED] ฟังก์ชันรีเซ็ตข้อมูลฟอร์มเพิ่มท่าฝึก
 const handleReset = () => {
     newExercise.value = {
         nameTh: '',
@@ -384,6 +423,7 @@ const handleReset = () => {
         equipment: 'Bodyweight',
         imageUrl: ''
     };
+    showToast('ล้างข้อมูลฟอร์มเรียบร้อยแล้ว', 'reset'); // เพิ่ม Toast แจ้งเตือน
 };
 </script>
 
@@ -421,6 +461,7 @@ const handleReset = () => {
                 <button @click="currentPage = 'about'" :class="['w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap', currentPage === 'about' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white']">
                     <Info class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">เกี่ยวกับเว็บ</span>
                 </button>
+
                 
                 <button v-if="isAdminLoggedIn" @click="handleLogout" class="w-full flex items-center justify-center md:justify-start gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-medium outline-none whitespace-nowrap text-rose-400 hover:bg-rose-500/10 hover:text-rose-500 mt-auto md:absolute md:bottom-4 md:w-[calc(100%-2rem)]">
                     <LogOut class="w-5 h-5 shrink-0" /> <span class="hidden md:inline">ออกจากระบบแอดมิน</span>
