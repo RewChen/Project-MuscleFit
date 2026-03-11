@@ -409,7 +409,7 @@ const handleSave = async () => {
     } catch (error) {
         console.error('❌ Error Details:', error.message);
         // แสดงข้อความ Error จริงๆ ให้แอดมินเห็นเลย
-        showToast('บันทึกไม่สำเร็จ (ดูรายละเอียดใน Console)', 'error');
+        showToast('บันทึกไม่สำเร็จ', 'error');
     }
 };
 // [UPDATED] ฟังก์ชันรีเซ็ตข้อมูลฟอร์มเพิ่มท่าฝึก
