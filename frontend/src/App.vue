@@ -200,15 +200,6 @@ const showToast = (message, type = 'success') => {
     setTimeout(() => toast.value.show = false, 2000);
 };
 
-const showFeatureNotReady = (customMessage) => {
-    toast.value = { 
-        show: true, 
-        message: typeof customMessage === 'string' ? customMessage : 'กำลังพัฒนาระบบส่วนนี้ครับ...', 
-        type: 'reset' 
-    };
-    setTimeout(() => { toast.value.show = false; }, 1500);
-};
-
 const toggleFavorite = (id, event) => {
     if(event) event.stopPropagation();
     const index = favorites.value.indexOf(id);
@@ -335,6 +326,19 @@ const handleAdminLogout = () => {
 const handleSave = async () => {
     if (!newExercise.value.name_th || !newExercise.value.video_url) {
         return showToast('กรุณากรอกชื่อท่า (ภาษาไทย) และ URL วิดีโอ', 'error');
+    }
+
+    // 🟢 ระบบอัจฉริยะ: แปลงลิงก์ YouTube ทุกรูปแบบให้เป็น Embed อัตโนมัติ
+    let vUrl = newExercise.value.video_url;
+    if (vUrl.includes('youtu.be/')) {
+        let vid = vUrl.split('youtu.be/')[1].split('?')[0];
+        newExercise.value.video_url = `https://www.youtube.com/embed/${vid}`;
+    } else if (vUrl.includes('watch?v=')) {
+        let vid = vUrl.split('watch?v=')[1].split('&')[0];
+        newExercise.value.video_url = `https://www.youtube.com/embed/${vid}`;
+    } else if (vUrl.includes('youtube.com/shorts/')) {
+        let vid = vUrl.split('shorts/')[1].split('?')[0];
+        newExercise.value.video_url = `https://www.youtube.com/embed/${vid}`;
     }
 
     isSubmitting.value = true;
@@ -833,7 +837,7 @@ const handleDeleteExercise = async (id) => {
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">URL วิดีโอ YouTube <span class="text-rose-500">*</span></label>
-                                    <input v-model="newExercise.video_url" type="text" placeholder="https://www.youtube.com/embed/..." class="w-full px-5 py-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 focus:bg-white transition-colors" />
+                                    <input v-model="newExercise.video_url" type="text" placeholder="เช่น https://youtu.be/..." class="w-full px-5 py-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-blue-500 focus:bg-white transition-colors" />
                                 </div>
                             </div>
                         </div>
