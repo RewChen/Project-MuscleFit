@@ -57,7 +57,7 @@ app.get('/api/exercises/:id', (req, res) => {
 app.post('/api/exercises', (req, res) => {
     const authHeader = req.headers['authorization'];
     if (authHeader !== 'Bearer admin1234') {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Unauthorized: รหัสผ่านไม่ถูกต้อง' });
     }
 
     const { name_th, name_en, difficulty, muscle_group, secondary_muscle, equipment, duration, description, instructions, media_url, video_url } = req.body;
