@@ -345,7 +345,7 @@ const handleSave = async () => {
     showToast('กำลังบันทึกข้อมูลลงฐานข้อมูล...', 'success');
 
     try {
-        const response = await fetch('https://faithful-caring-production.up.railway.app/api/exercises', {
+        const response = await fetch('http://localhost:3000/api/exercises', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
